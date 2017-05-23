@@ -7,6 +7,14 @@
  * @Note: DIP Course work
  */
 
+/*!
+ * Usage:
+ * To compile
+ *   g++ source/hand_reco_lzhbrian.cpp -I/path/to/opencv3/include -L/path/to/opencv3/lib -lopencv_core -lopencv_highgui -lopencv_videoio -lopencv_objdetect -lopencv_imgproc -lopencv_imgcodecs -o hand_reco
+ * To run
+ *   ./hand_reco
+ */
+
 #include "opencv2/opencv.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -31,6 +39,51 @@ void clusterConvexHullPoints(vector<vector<Point> > &hull,
                              double threshold
                             );
 
+int isLiveOrNot(vector<Point> v1, vector<Point> v2)
+{
+    for (int i = 0; i < v1.size(); i++)
+        cout << "v1: " << v1[i] << endl;
+    for (int i = 0; i < v2.size(); i++)
+        cout << "v2: " << v2[i] << endl;
+
+    cout << "Call isLiveOrNot ... \n";
+    Point p1 = v1[0];
+    Point p2 = v1[1];
+    Point p3 = v1[2];
+    Point p4 = v1[3];
+    Point rp1 = v2[0];
+    Point rp2 = v2[1];
+    Point rp3 = v2[2];
+    Point rp4 = v2[3];
+
+    //rank
+    double l1,l2,l3,rl1,rl2,rl3,movement,l,rl;
+    l1 = norm(p1 - p2);
+    l2 = norm(p2 - p3);
+    l3 = norm(p3 - p4);
+
+    rl1 = norm(rp1 - rp2);
+    rl2 = norm(rp2 - rp3);
+    rl3 = norm(rp3 - rp4);
+
+    // l1=sqrt((p1.x-p2.x)^2+(p1.y-p2.y)^2);
+    // l2=sqrt((p3.x-p2.x)^2+(p3.y-p2.y)^2);
+    // l3=sqrt((p3.x-p4.x)^2+(p3.y-p4.y)^2);
+    l=l1+l2+l3;
+    // rl1=sqrt((rp1.x-rp2.x)^2+(rp1.y-rp2.y)^2);
+    // rl2=sqrt((rp3.x-rp2.x)^2+(rp3.y-rp2.y)^2);
+    // rl3=sqrt((rp3.x-rp4.x)^2+(rp3.y-rp4.y)^2);
+    rl=rl1+rl2+rl3;
+    l1=l1/l;l2=l2/l;l3=l3/l;
+    rl1=rl1/rl;rl2=rl2/rl;rl3=rl3/rl;
+    movement = abs(l1-rl1) + abs(l2-rl2) + abs(l3-rl3);
+    cout << "movement: " << movement << endl;
+    if(movement > 0.12 && movement < 0.2)        
+        return 1;
+    else
+        return 0;
+}
+
 int main()
 {
 
@@ -38,7 +91,7 @@ int main()
     Mat frame;
     Mat gray;
     VideoCapture capture;
-    double fps = 10; // FPS
+    double fps = 100; // FPS
 
     /* open camera */
     capture.open(0); // open the default camera
@@ -153,13 +206,15 @@ int main()
                 last_finger_ends = this_finger_ends;
                 this_finger_ends = tmp_finger_ends;
                 /* Figure if it's live or not (zuotianyou) */
-                // int live = 0;
-                // live = isLiveOrNot( last_finger_ends, this_finger_ends );
-                // if(live) {
-                //    cout << "ALIVE !!!" << endl;  
+                int live = 0;
+                if (last_finger_ends.size() && this_finger_ends.size())
+                    live = isLiveOrNot( last_finger_ends, this_finger_ends );
+                
+                if(live) {
+                   cout << "ALIVE !!!" << endl;  
                     live = 1;
                     putText(region_of_interest, "ALIVE" , Point(10, int(region_of_interest.rows*0.9)), CV_FONT_HERSHEY_COMPLEX, 3, Scalar(0, 0, 255), 3);  
-                // }
+                }
             }
             imshow("Hand", region_of_interest); // show this frame
 
