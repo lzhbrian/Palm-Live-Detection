@@ -10,8 +10,8 @@ brief steps:
 
 1. Find palm image pixels using OTSU algorithm
 2. Find Contour of the pixels
-3. Get finger edges
-4. Monitoring the relative distance between finger edges.
+3. Get finger end vertices
+4. Monitoring the relative distance between finger end vertices.
    1. If changed to a threshold -> ALIVE
 
 
@@ -34,10 +34,10 @@ g++ source/hand_reco_lzhbrian.cpp \
 
 ### Demo
 
-* This system detects the relative distance of finger edges, so moving forward or backward won't trigger anything. (as shown below)
+* This system detects the relative distance of finger end vertices, so moving forward or backward won't trigger anything. (as shown below)
 
 ![notdetected](resources/notdetected.gif)
 
-* If you stretch your fingers, which results in change of relative distance between finger edges, the system will consider it as a LIVE PALM. (as shown below)
+* If you stretch your fingers, which results in change of relative distance between finger end vertices, the system will consider it as a LIVE PALM. (as shown below)
 
 ![detected](resources/detected.gif)
